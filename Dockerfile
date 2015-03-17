@@ -34,11 +34,14 @@ RUN pip install supervisor
 #Installing unzip and zip program
 RUN yum install -y tar
 
+# Install drush
+RUN yum install -y php-drush-drush
+
 # Enviroment variable for setting the Username and Password of MySQL
 ENV MYSQL_USER root
 ENV MYSQL_PASS root
 
-# Wordpress Database name
+# Drupal Database name
 ENV DRUPAL_DBNAME drupal
 
 # Adding the configuration file of the nginx
@@ -66,13 +69,12 @@ VOLUME  ["/etc/mysql", "/var/lib/mysql" ]
 
 # Retrieve and Installing drupal
 RUN rm -rf /var/www/
-ADD http://ftp.drupal.org/files/projects/drupal-7.31.tar.gz /drupal-7.31.tar.gz
-RUN tar xvzf /drupal-7.31.tar.gz 
-RUN mv /drupal-7.31 /var/www/
-RUN chmod a+w /var/www/sites/default && mkdir /var/www/sites/default/files
+RUN drush dl drupal-7
+RUN mv /drupal-7* /var/www
+RUN mkdir /var/www/sites/default/files
 RUN cp /var/www/sites/default/default.settings.php /var/www/sites/default/settings.php
-RUN chmod a+w /var/www/sites/default/settings.php
-RUN chown -R apache:apache /var/www/
+RUN chown apache:apache /var/www/sites/default/settings.php
+RUN chown -R apache:apache /var/www/sites/default/files
 
 # Set the port to 80 
 EXPOSE 80 3306
